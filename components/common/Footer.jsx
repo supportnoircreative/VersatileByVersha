@@ -54,14 +54,8 @@ export default function Footer() {
             Crown your confidence with luxury virgin hair wigs & HD Swiss lace closures designed to deliver ultimate elegance and style.
           </p>
           <div className="flex justify-center sm:justify-start gap-3 pt-2">
-            <a href="#" className="min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-luxe-rose hover:text-white transition-colors" aria-label="Instagram">
+            <a href="https://www.instagram.com/versaceversha?igsh=NXUzbGVwM2g1bWZ5" target="_blank" className="min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-luxe-rose hover:text-white transition-colors" aria-label="Instagram">
               <Instagram className="w-4 h-4" />
-            </a>
-            <a href="#" className="min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-luxe-rose hover:text-white transition-colors" aria-label="Facebook">
-              <Facebook className="w-4 h-4" />
-            </a>
-            <a href="#" className="min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-luxe-rose hover:text-white transition-colors" aria-label="Twitter">
-              <Twitter className="w-4 h-4" />
             </a>
           </div>
         </div>
