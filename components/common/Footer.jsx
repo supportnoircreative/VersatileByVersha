@@ -57,6 +57,11 @@ export default function Footer() {
             <a href="https://www.instagram.com/versaceversha?igsh=NXUzbGVwM2g1bWZ5" target="_blank" className="min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-luxe-rose hover:text-white transition-colors" aria-label="Instagram">
               <Instagram className="w-4 h-4" />
             </a>
+            <a href="https://www.threads.com/@versaceversha" target="_blank" className="min-w-[44px] min-h-[44px] rounded-full bg-white/10 flex items-center justify-center text-gray-300 hover:bg-luxe-rose hover:text-white transition-colors" aria-label="Threads">
+              <svg viewBox="0 0 24 24" fill="currentColor" className="w-4 h-4">
+                <path d="M14.25 5.25c-1.5 0-2.75 1.25-2.75 2.75v8c0 .55-.45 1-1 1s-1-.45-1-1v-8c0-2.62 2.13-4.75 4.75-4.75S18.75 5.38 18.75 8v8c0 .55-.45 1-1 1s-1-.45-1-1V8c0-1.5-1.25-2.75-2.75-2.75h.25zM7.25 9.25c-1.5 0-2.75 1.25-2.75 2.75v2c0 1.5 1.25 2.75 2.75 2.75S10 15.5 10 14v-2c0-1.5-1.25-2.75-2.75-2.75z"/>
+              </svg>
+            </a>
           </div>
         </div>
 
