@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { Star, ShoppingBag, Truck, ShieldCheck, RefreshCw, Heart, ArrowLeft } from "lucide-react";
+import { Star, ShoppingBag, Truck, ShieldCheck, RefreshCw, Heart, ArrowLeft, ImageIcon } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { ProductDetailsShimmer } from "@/components/common/LoadingShimmer";
 import ProductCard from "@/components/shop/ProductCard";
@@ -64,13 +64,19 @@ export default function ProductDetailPage() {
         {/* Left Image Gallery */}
         <div className="space-y-4">
           <div className="relative w-full h-[450px] sm:h-[540px] rounded-3xl overflow-hidden bg-[#f9f9fd] shadow-lg border border-pink-100">
-            <Image
-              src={product.image}
-              alt={product.name}
-              fill
-              priority
-              className="object-contain object-center"
-            />
+            {product.image ? (
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                priority
+                className="object-contain object-center"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center">
+                <ImageIcon className="w-16 h-16 text-pink-200" />
+              </div>
+            )}
             {product.isOnSale && (
               <span className="absolute top-6 left-6 bg-luxe-rose text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
                 SAVE {product.discountPercent}%
@@ -79,7 +85,7 @@ export default function ProductDetailPage() {
           </div>
 
           {/* Thumbnails Row */}
-          {product.sizes && (
+          {product.sizes && product.image && (
             <div className="flex gap-3 overflow-x-auto p-2">
               {product.sizes.map((s, idx) => (
                 <button

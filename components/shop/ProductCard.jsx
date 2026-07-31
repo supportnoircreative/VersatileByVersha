@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Star, ShoppingBag, Eye, Heart } from "lucide-react";
+import { Star, ShoppingBag, Eye, Heart, ImageIcon } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useWishlist } from "@/context/WishlistContext";
 import { useAuth } from "@/context/AuthContext";
@@ -57,13 +57,17 @@ export default function ProductCard({ product }) {
 
       {/* Product Image Box - Perfectly Centered & Uniform Aspect Ratio */}
       <div className="relative w-full aspect-square sm:aspect-4/3 rounded-xl overflow-hidden bg-pink-50/40 mb-4 flex items-center justify-center">
-        <Image
-          src={currentVariant.image || product.image}
-          alt={product.name}
-          fill
-          className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
-        />
+        {currentVariant.image || product.image ? (
+          <Image
+            src={currentVariant.image || product.image}
+            alt={product.name}
+            fill
+            className="object-contain object-center group-hover:scale-105 transition-transform duration-500"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+          />
+        ) : (
+          <ImageIcon className="w-10 h-10 text-pink-200" />
+        )}
         
         {/* Quick View Overlay */}
         <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

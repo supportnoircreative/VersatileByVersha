@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { CheckCircle2, ShoppingBag } from "lucide-react";
+import { CheckCircle2, ShoppingBag, ImageIcon } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 export default function BundleCard({ bundle }) {
@@ -34,12 +34,18 @@ export default function BundleCard({ bundle }) {
 
       <div>
         <div className="relative w-full h-56 rounded-2xl overflow-hidden mb-6 shadow-inner">
-          <Image
-            src={bundle.image}
-            alt={bundle.title}
-            fill
-            className="object-contain object-center"
-          />
+          {bundle.image ? (
+            <Image
+              src={bundle.image}
+              alt={bundle.title}
+              fill
+              className="object-contain object-center"
+            />
+          ) : (
+            <div className="w-full h-full flex items-center justify-center bg-pink-50">
+              <ImageIcon className="w-12 h-12 text-pink-200" />
+            </div>
+          )}
           <span className="absolute bottom-3 right-3 bg-luxe-rose text-white text-xs font-bold px-3 py-1 rounded-full shadow-md">
             {bundle.savings}
           </span>

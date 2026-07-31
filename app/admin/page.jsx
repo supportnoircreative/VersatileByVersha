@@ -241,7 +241,7 @@ export default function AdminDashboardPage() {
         stock: parseInt(s.stock) || 0,
       })),
       details: { ...f.details },
-      images: [],
+      images: f.images.filter((img) => !(img instanceof File)),
       rating: 0,
       reviewsCount: 0,
     };
