@@ -21,7 +21,6 @@
 11. [Cart Flow](#11-cart-flow)
 12. [Wishlist Flow](#12-wishlist-flow)
 13. [Checkout Flow](#13-checkout-flow)
-14. [Cash on Delivery (COD) Flow](#14-cash-on-delivery-cod-flow)
 15. [Stripe Payment Flow](#15-stripe-payment-flow)
 16. [Order Flow](#16-order-flow)
 17. [Orders Page (Customer)](#17-orders-page-customer)
@@ -106,7 +105,7 @@ F:\wig\info\versatile\
 │   ├── admin/page.jsx            # Admin dashboard (718 lines)
 │   ├── cart/page.jsx             # Shopping cart page
 │   ├── checkout/
-│   │   ├── page.jsx              # Checkout form (COD + Stripe)
+│   │   ├── page.jsx              # Checkout form (Stripe)
 │   │   ├── success/page.jsx      # Post-Stripe success page
 │   │   └── cancelled/page.jsx    # Payment cancelled page
 │   ├── contact/page.jsx          # Contact form page
@@ -634,7 +633,6 @@ Firestore: wishlists/{auto-generated-id}
 
 ### 12.4 After Successful Order
 
-- **COD**: `clearWishlist()` called after `orderService.createOrder()` succeeds
 - **Stripe**: `clearWishlist()` called when `/checkout/success` page confirms the order via `/api/checkout/verify`
 - Wishlist count in Navbar updates immediately via `wishlistCount` state
 
@@ -657,11 +655,9 @@ Firestore: wishlists/{auto-generated-id}
 graph TD
     CartPage[Cart Page] --> CheckoutPage[Checkout Page]
     CheckoutPage --> Form[Shipping Form]
-    CheckoutPage --> PaymentSelection[Payment Selection]
-    PaymentSelection --> |Credit/Debit Card| StripeFlow[Stripe Redirect]
-    PaymentSelection --> |Cash on Delivery| CODFlow[COD Order]
+    CheckoutPage --> PaymentSelection[Card Payment - Stripe]
+    PaymentSelection --> StripeFlow[Stripe Redirect]
     StripeFlow --> SuccessPage[Checkout Success]
-    CODFlow --> OrderConfirmation[Inline Order Confirmation]
 ```
 
 ### 13.2 Shipping Form
@@ -670,10 +666,9 @@ Fields: firstName, lastName, email, phone, address, city, zip
 
 ### 13.3 Payment Options
 
-- **Credit/Debit Card (Stripe)**: Selected by default
-- **Cash on Delivery**: Alternative option
+- **Credit/Debit Card (Stripe)**: The only payment option
 - Stripe availability: checked via `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY` env var
-- If Stripe key is missing, recommends COD with a warning banner
+- If Stripe key is missing, checkout is blocked with a warning banner
 
 ### 13.4 Validations
 
@@ -684,64 +679,6 @@ Fields: firstName, lastName, email, phone, address, city, zip
 | Auth required | `if (!user)` guard |
 | Item stock | Server-side in `/api/checkout` route |
 | Promo code | Server-side via `saleService.validatePromoCode()` |
-
----
-
-## 14. Cash on Delivery (COD) Flow
-
-### 14.1 Sequence
-
-```mermaid
-sequenceDiagram
-    participant User
-    participant CheckoutPage
-    participant OrderService
-    participant Firestore
-    participant CartContext
-
-    User->>CheckoutPage: Select COD, submit form
-    CheckoutPage->>OrderService: createOrder(orderData)
-    OrderService->>OrderService: Validate items stock + promo
-    OrderService->>Firestore: create(orders, orderData)
-    OrderService->>ProductService: decrementVariantStock per item
-    ProductService->>Firestore: update(products/{id}, { sizes })
-    OrderService-->>CheckoutPage: created order
-    CheckoutPage->>CartContext: clearCart()
-    CheckoutPage->>WishlistContext: clearWishlist()
-    CheckoutPage-->>User: Show "Order Placed Successfully!"
-```
-
-### 14.2 Order Data Shape (COD)
-
-```js
-{
-  userId: user.uid,
-  userName: user.displayName,
-  email: formData.email,
-  phone: formData.phone,
-  shippingAddress: { firstName, lastName, address, city, zip },
-  items: [...cartItems mapped],
-  subtotal,
-  discountAmount,
-  discountPercent: appliedSale?.discountPercent || 0,
-  shippingFee,
-  totalAfterDiscount: max(0, subtotal - discountAmount),
-  total: grandTotal,
-  paymentMethod: "cod",
-  paymentStatus: "Pending",
-  orderStatus: "Pending",
-  promoCode: promoCode || null,
-  appliedSaleId: appliedSale?.id || null,
-  createdAt: ISO string,
-  updatedAt: ISO string,
-}
-```
-
-### 14.3 Success State
-
-- Order reference displayed: `#LX-{orderId.slice(-8)}`
-- Cart cleared, wishlist cleared
-- "View My Orders" link to `/orders`
 
 ---
 
@@ -869,7 +806,6 @@ States:
 ### 16.1 Order Creation
 
 **Paths**:
-- **COD**: `OrderService.createOrder()` → validates → creates Firestore doc → decrements stock
 - **Stripe**: Created as `"Pending"` in `/api/checkout` route → updated to `"Paid"` by webhook
 
 ### 16.2 Order Lifecycle
@@ -903,7 +839,7 @@ Valid statuses: `Pending`, `Placed`, `Processing`, `Dispatched`, `Delivered`, `C
   shippingFee: number,
   totalAfterDiscount: number,
   total: number,
-  paymentMethod: "cod" | "stripe",
+  paymentMethod: "stripe",
   paymentStatus: "Pending" | "Paid" | "Failed",
   orderStatus: "Pending" | "Placed" | "Processing" | "Dispatched" | "Delivered" | "Cancelled" | "Refunded",
   promoCode: string | null,
@@ -944,7 +880,7 @@ Valid statuses: `Pending`, `Placed`, `Processing`, `Dispatched`, `Delivered`, `C
 - Order ID: `#LX-{orderId.slice(-8)}`
 - Date: formatted `createdAt`
 - Status badge with color mapping (Pending→amber, Placed→blue, etc.)
-- Payment method badge (COD / Card)
+- Payment method badge (Card)
 - Payment status badge (Paid→emerald, Pending→amber, Failed→red)
 - Items: first item thumbnail, name, qty
 - Total amount
@@ -1051,7 +987,6 @@ if (saleType === "flash" || item.category === sale.category) {
 Discount is calculated:
 - Per-item in `/api/checkout` (server-side) for Stripe line items
 - In `CartContext` via `useMemo` for cart/checkout display
-- Re-validated in `OrderService.createOrder()` for COD orders
 
 ### 19.5 Announcement Bar
 
@@ -1224,7 +1159,7 @@ Firestore Root
 | `shippingFee` | Number | |
 | `totalAfterDiscount` | Number | |
 | `total` | Number | Grand total |
-| `paymentMethod` | String | `"cod"` or `"stripe"` |
+| `paymentMethod` | String | `"stripe"` |
 | `paymentStatus` | String | `"Pending"`, `"Paid"`, `"Failed"` |
 | `orderStatus` | String | `"Pending"`, `"Placed"`, `"Processing"`, `"Dispatched"`, `"Delivered"`, `"Cancelled"`, `"Refunded"` |
 | `promoCode` | String | Nullable |
@@ -1575,7 +1510,6 @@ Handles Stripe webhook events.
 ### 26.4 Orders
 
 - **OrderService stock decrement fails**: Continues to next item (logged but not fatal) — potential inconsistency
-- **COD + Stripe orders co-exist**: Both stored in same `orders` collection with different `paymentMethod` values — admin can filter by it
 
 ### 26.5 Reviews
 

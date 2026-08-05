@@ -15,8 +15,6 @@ import {
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useAuth } from "@/context/AuthContext";
-import { useWishlist } from "@/context/WishlistContext";
-import orderService from "@/services/OrderService";
 
 export default function CheckoutPage() {
   const {
@@ -25,16 +23,13 @@ export default function CheckoutPage() {
     subtotal,
     shippingFee,
     discountAmount,
-    clearCart,
     applyPromoCode,
     promoCode,
     appliedSale,
     clearPromo,
   } = useCart();
   const { user } = useAuth();
-  const { clearWishlist } = useWishlist();
   const [orderPlaced, setOrderPlaced] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("stripe");
   const [orderId, setOrderId] = useState(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -135,78 +130,9 @@ export default function CheckoutPage() {
     }
   };
 
-  const handleCODPayment = async () => {
-    setErrorMsg("");
-
-    if (!validateForm()) return;
-    if (cartItems.length === 0) {
-      setErrorMsg("Your cart is empty");
-      return;
-    }
-    if (!user) {
-      setErrorMsg("Please sign in to place an order");
-      return;
-    }
-
-    setIsProcessing(true);
-
-    try {
-      const orderData = {
-        userId: user.uid,
-        userName: user.displayName || "",
-        email: formData.email,
-        phone: formData.phone,
-        shippingAddress: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          address: formData.address,
-          city: formData.city,
-          zip: formData.zip,
-        },
-        items: cartItems.map((item) => ({
-          productId: item.productId,
-          name: item.name,
-          category: item.category || "",
-          price: item.price,
-          size: item.size,
-          image: item.image,
-          qty: item.qty,
-          itemType: item.itemType || "product",
-        })),
-        subtotal,
-        discountAmount,
-        discountPercent: appliedSale?.discountPercent || 0,
-        shippingFee,
-        totalAfterDiscount: Math.max(0, subtotal - discountAmount),
-        total: grandTotal,
-        paymentMethod: "cod",
-        orderStatus: "Pending",
-        promoCode: promoCode || null,
-        appliedSaleId: appliedSale?.id || null,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const createdOrder = await orderService.createOrder(orderData);
-      setOrderId(createdOrder.id);
-      setOrderPlaced(true);
-      clearCart();
-      await clearWishlist();
-    } catch (error) {
-      console.error("COD order placement failed:", error);
-      setErrorMsg(error.message || "Failed to place order. Please try again.");
-    } finally {
-      setIsProcessing(false);
-    }
-  };
-
   const handlePlaceOrder = async (e) => {
     e.preventDefault();
-    if (paymentMethod === "stripe") {
-      await handleStripeCheckout();
-    } else {
-      await handleCODPayment();
-    }
+    await handleStripeCheckout();
   };
 
   const handleApplyCheckoutPromo = async (e) => {
@@ -255,7 +181,7 @@ export default function CheckoutPage() {
             </strong>
           </p>
           <p>
-            Payment Method: <strong>Cash on Delivery</strong>
+            Payment Method: <strong>Card (Stripe)</strong>
           </p>
           <p>
             Estimated Delivery: <strong>5 - 10 Business Days</strong>
@@ -407,67 +333,14 @@ export default function CheckoutPage() {
               <span>Payment Option</span>
             </h3>
 
-            <div className="grid grid-cols-2 gap-4">
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("stripe")}
-                className={`p-4 rounded-2xl border text-left flex items-center gap-3 transition-all ${
-                  paymentMethod === "stripe"
-                    ? "border-luxe-rose bg-pink-50/50 shadow-xs"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <CreditCard className="w-5 h-5 text-luxe-rose" />
-                <div>
-                  <p className="text-xs font-bold text-gray-900">
-                    Credit / Debit Card
-                  </p>
-                  <p className="text-[10px] text-gray-500">
-                    Pay with Visa, Mastercard, Amex
-                  </p>
-                </div>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setPaymentMethod("cod")}
-                className={`p-4 rounded-2xl border text-left flex items-center gap-3 transition-all ${
-                  paymentMethod === "cod"
-                    ? "border-luxe-rose bg-pink-50/50 shadow-xs"
-                    : "border-gray-200 hover:border-gray-300"
-                }`}
-              >
-                <Truck className="w-5 h-5 text-luxe-gold" />
-                <div>
-                  <p className="text-xs font-bold text-gray-900">
-                    Cash On Delivery
-                  </p>
-                  <p className="text-[10px] text-gray-500">
-                    Pay upon package arrival
-                  </p>
-                </div>
-              </button>
+            <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
+              <p className="text-xs text-blue-700 font-medium flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-blue-500" />
+                You will be redirected to Stripe's secure checkout page to
+                complete your payment. Your card details are never stored on
+                our servers.
+              </p>
             </div>
-
-            {paymentMethod === "stripe" && (
-              <div className="p-4 bg-blue-50/50 border border-blue-100 rounded-2xl">
-                <p className="text-xs text-blue-700 font-medium flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-blue-500" />
-                  You will be redirected to Stripe's secure checkout page to
-                  complete your payment. Your card details are never stored on
-                  our servers.
-                </p>
-              </div>
-            )}
-
-            {paymentMethod === "cod" && (
-              <div className="p-4 bg-emerald-50/50 border border-emerald-100 rounded-2xl">
-                <p className="text-xs text-emerald-700 font-medium flex items-center gap-2">
-                  <Truck className="w-4 h-4 text-emerald-500" />
-                  Pay when your package arrives. No upfront payment required.
-                </p>
-              </div>
-            )}
           </div>
         </div>
 
@@ -601,26 +474,21 @@ export default function CheckoutPage() {
               <div className="flex items-start gap-2 p-3 bg-amber-50 border border-amber-200 rounded-xl">
                 <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 shrink-0" />
                 <p className="text-xs text-amber-700 font-medium">
-                  Card payments are currently unavailable. Please use Cash on
-                  Delivery.
+                  Card payments are currently unavailable. Please try again
+                  later.
                 </p>
               </div>
             )}
 
             <button
               type="submit"
-              disabled={
-                isProcessing ||
-                (paymentMethod === "stripe" && !stripeAvailable)
-              }
+              disabled={isProcessing || !stripeAvailable}
               className="w-full py-4 rounded-full bg-luxe-rose hover:bg-luxe-rose-dark text-white font-semibold text-sm shadow-xl hover:shadow-2xl transition-all disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {isProcessing ? (
                 <>
                   <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  {paymentMethod === "stripe"
-                    ? "Redirecting to Stripe..."
-                    : "Processing..."}
+                  Redirecting to Stripe...
                 </>
               ) : (
                 `Pay $${grandTotal.toFixed(2)}`

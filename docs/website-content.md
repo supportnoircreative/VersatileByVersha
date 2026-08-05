@@ -689,13 +689,7 @@ Source: `app/checkout/page.jsx`
 - Title: "Credit / Debit Card"
 - Description: "Pay with Visa, Mastercard, Amex"
 
-**Option 2 — Cash On Delivery:**
-- Title: "Cash On Delivery"
-- Description: "Pay upon package arrival"
-
 **Stripe notice:** "You will be redirected to Stripe's secure checkout page to complete your payment. Your card details are never stored on our servers."
-
-**COD notice:** "Pay when your package arrives. No upfront payment required."
 
 ### Order Summary (Checkout)
 
@@ -713,7 +707,7 @@ Source: `app/checkout/page.jsx`
 
 **Pay Button:** "Pay ${total}"
 
-**Processing states:** "Redirecting to Stripe..." / "Processing..."
+**Processing states:** "Redirecting to Stripe..."
 
 **Security notice:** "Money-Back Guarantee Protected"
 
@@ -722,14 +716,14 @@ Source: `app/checkout/page.jsx`
 - "Missing required fields: {fields}"
 - "Your cart is empty"
 - "Please sign in to place an order"
-- "Card payments are currently unavailable. Please use Cash on Delivery."
+- "Card payments are currently unavailable. Please try again later."
 
-### Order Placed Success State (COD)
+### Order Placed Success State
 
 - "Order Placed Successfully!"
 - "Thank you for shopping with Versatile by Versha! Your order confirmation has been sent to {email}."
 - "Order Reference: #LX-{id}"
-- "Payment Method: Cash on Delivery"
+- "Payment Method: Card (Stripe)"
 - "Estimated Delivery: 2 - 4 Business Days"
 - Button: "View My Orders"
 
@@ -820,9 +814,8 @@ Source: `app/orders/page.jsx`
 - "Placed on {date}"
 - Order status badges: "Pending", "Placed", "Processing", "Dispatched", "Delivered", "Cancelled", "Refunded"
 - Payment status badges: "Paid", "Pending", "Failed"
-- "COD" (payment method label)
 - "Card Payment"
-- "Cash on Delivery"
+- "Card — {status}" (combined payment method + status badge)
 - "+{n} more" (additional items)
 - "Qty: {n}"
 - "Total"
@@ -1200,7 +1193,7 @@ Source: `components/admin/orders/AdminOrderCard.jsx`
 
 - Order reference: "#{id}"
 - Customer name (from userName, shipping address, or email, fallback "N/A")
-- Payment: "COD" / "Card"
+- Payment: "Card — {status}"
 - Payment status: "Paid" / other
 - Total: "${total}"
 - Items display: "{name} ({size} x{qty})"
@@ -1358,7 +1351,7 @@ Collected from all forms:
 ### Checkout Error Messages
 - "Your cart is empty"
 - "Please sign in to place an order"
-- "Card payments are currently unavailable. Please use Cash on Delivery."
+- "Card payments are currently unavailable. Please try again later."
 - "Failed to create checkout session."
 - "No checkout URL returned."
 - "Failed to start payment. Please try again."

@@ -6,7 +6,7 @@ import orderService from "@/services/OrderService";
 import { ProductGridShimmer } from "@/components/common/LoadingShimmer";
 import Link from "next/link";
 import Image from "next/image";
-import { Package, Clock, ShieldCheck, Truck, CreditCard, ArrowRight } from "lucide-react";
+import { Package, Clock, ShieldCheck, CreditCard, ArrowRight } from "lucide-react";
 
 function OrderCard({ order }) {
   const formatDate = (dateString) => {
@@ -77,7 +77,7 @@ function OrderCard({ order }) {
               {order.orderStatus}
             </span>
             <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-sm font-semibold border ${getPaymentStatusColor(order.paymentStatus)}`}>
-              {order.paymentMethod === "card" ? "Paid by Card" : "Cash on Delivery"}
+              Card — {order.paymentStatus}
             </span>
           </div>
         </div>
@@ -126,11 +126,8 @@ function OrderCard({ order }) {
           </div>
           <div className="space-y-2 text-right">
             <div className="flex items-center justify-end gap-1.5 text-sm text-gray-600">
-              {order.paymentMethod === "card" ? (
-                <><CreditCard className="w-4 h-4 text-luxe-rose" /><span>Card Payment</span></>
-              ) : (
-                <><Truck className="w-4 h-4 text-luxe-gold" /><span>Cash on Delivery</span></>
-              )}
+              <CreditCard className="w-4 h-4 text-luxe-rose" />
+              <span>Card Payment</span>
             </div>
             <div className="space-y-0.5">
               <p className="text-sm text-gray-500">Subtotal: <span className="text-gray-700">${(order.subtotal || order.total || 0).toFixed(2)}</span></p>

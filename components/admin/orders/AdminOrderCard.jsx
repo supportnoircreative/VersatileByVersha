@@ -8,7 +8,6 @@ import {
   User,
   CreditCard,
   Package,
-  Truck,
   MapPin,
   Hash,
   Percent,
@@ -117,7 +116,7 @@ export default function AdminOrderCard({ order, updating, onStatusChange }) {
               {order.orderStatus}
             </span>
             <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold border ${getPaymentStatusColor(order.paymentStatus)}`}>
-              {order.paymentMethod === "cod" ? "COD" : "Card"} — {order.paymentStatus}
+              Card — {order.paymentStatus}
             </span>
           </div>
           <div className="flex items-center gap-2 text-sm text-gray-500">
@@ -189,13 +188,9 @@ export default function AdminOrderCard({ order, updating, onStatusChange }) {
             <CreditCard className="w-3 h-3" /> Payment
           </p>
           <div className="flex items-center gap-1.5 text-sm">
-            {order.paymentMethod === "cod" ? (
-              <Truck className="w-4 h-4 text-luxe-gold" />
-            ) : (
-              <CreditCard className="w-4 h-4 text-luxe-rose" />
-            )}
+            <CreditCard className="w-4 h-4 text-luxe-rose" />
             <span className="font-semibold text-gray-900 capitalize">
-              {order.paymentMethod === "cod" ? "Cash on Delivery" : "Card Payment"}
+              Card Payment
             </span>
           </div>
           {order.promoCode && (
